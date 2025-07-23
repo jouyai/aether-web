@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    /* Konfigurasi Dasar & Modern */
+    "target": "ES2020", // Mengompilasi ke versi JavaScript modern yang didukung browser
+    "useDefineForClassFields": true, // Standar modern untuk field kelas
+    "lib": ["ES2020", "DOM", "DOM.Iterable"], // Pustaka standar yang tersedia saat runtime
+    "module": "ESNext", // Menggunakan sistem module ES terbaru
+    "skipLibCheck": true, // Melewatkan pengecekan tipe pada file deklarasi (.d.ts) untuk mempercepat kompilasi
+
+    /* Konfigurasi untuk Bundler (Vite) */
+    "moduleResolution": "bundler", // Mode resolusi modul modern yang direkomendasikan untuk Vite/Webpack
+    "allowImportingTsExtensions": true, // Izinkan impor file .ts/.tsx tanpa ekstensi
+    "resolveJsonModule": true, // Izinkan impor file .json
+    "isolatedModules": true, // Wajib untuk Vite, memastikan setiap file bisa ditranspilasi secara terpisah
+    "noEmit": true, // TypeScript tidak menghasilkan output JS, Vite yang akan menanganinya
+
+    /* Konfigurasi untuk React & JSX */
+    "jsx": "react-jsx", // Menggunakan JSX transform baru (tidak perlu import React di setiap file)
+
+    /* Aturan Kualitas Kode (Strictness) */
+    "strict": true, // Mengaktifkan semua aturan pengecekan tipe yang ketat
+    "noUnusedLocals": true, // Memberi error jika ada variabel lokal yang tidak digunakan
+    "noUnusedParameters": true, // Memberi error jika ada parameter fungsi yang tidak digunakan
+    "noFallthroughCasesInSwitch": true, // Mencegah bug pada switch-case
+
+    /* Path Alias untuk Shadcn/UI & Import yang Mudah */
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": ["src"], // Folder mana saja yang akan di-compile oleh TypeScript
+}
