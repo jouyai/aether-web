@@ -31,8 +31,6 @@ export default function CheckoutPage() {
 
   const handlePayment = () => {
     toast.success("Pembayaran berhasil! Mengarahkan ke konfirmasi...");
-    // Cukup arahkan ke halaman konfirmasi dengan membawa data pesanan.
-    // Jangan kosongkan keranjang di sini.
     navigate('/confirmation', { state: { order: cartItems, total } });
   };
 

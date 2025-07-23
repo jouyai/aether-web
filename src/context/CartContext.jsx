@@ -35,7 +35,7 @@ export const CartProvider = ({ children }) => {
   
   const clearCart = () => {
     setCartItems([]);
-    toast.info("Keranjang telah dikosongkan."); // <-- Notifikasi ditambahkan di sini
+    toast.info("Keranjang telah dikosongkan.");
   };
 
   const openCart = () => setIsCartOpen(true);

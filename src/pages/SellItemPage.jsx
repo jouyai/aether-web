@@ -36,12 +36,10 @@ export default function SellItemPage() {
   const [description, setDescription] = useState('');
 
   const handleConfirmSell = () => {
-    // Di aplikasi nyata, Anda akan mengirim data ini ke server
     const newItem = { itemName, game, price, description };
     console.log("Item baru untuk dijual:", newItem);
     
     toast.success("Item Anda berhasil didaftarkan!");
-    // Reset form
     setItemName('');
     setGame('');
     setPrice('');

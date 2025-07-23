@@ -6,7 +6,7 @@ import { CheckCircle2 } from 'lucide-react';
 
 export default function ConfirmationPage() {
     const location = useLocation();
-    const { order, total } = location.state || { order: [], total: 0 }; // Ambil data dari state navigasi
+    const { order, total } = location.state || { order: [], total: 0 };
 
     return (
         <div className="container mx-auto px-4 pt-24 pb-16 flex flex-col items-center text-center">

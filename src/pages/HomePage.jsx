@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
-// Data dummy (sama seperti sebelumnya)
 const featuredItems = [
   { id: 1, name: "Dragonfire Wand", game: "Fantasy Kingdom", price: "Rp 750.000", imageUrl: "https://placehold.co/400x300/171717/ffffff?text=Dragonfire+Wand" },
   { id: 2, name: "Shadow Cloak", game: "Cyberpunk Realms", price: "Rp 1.200.000", imageUrl: "https://placehold.co/400x300/4f46e5/ffffff?text=Shadow+Cloak" },

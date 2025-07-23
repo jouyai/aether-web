@@ -14,7 +14,6 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 
-// Data dummy yang lebih banyak untuk halaman explore
 const allItems = [
   { id: 1, name: "Dragonfire Wand", game: "Fantasy Kingdom", price: 750000, imageUrl: "https://placehold.co/400x300/171717/ffffff?text=Dragonfire+Wand", category: "Weapon" },
   { id: 2, name: "Shadow Cloak", game: "Cyberpunk Realms", price: 1200000, imageUrl: "https://placehold.co/400x300/4f46e5/ffffff?text=Shadow+Cloak", category: "Armor" },

@@ -8,8 +8,8 @@ import ExplorePage from './pages/ExplorePage';
 import SellItemPage from './pages/SellItemPage';
 import AboutPage from './pages/AboutPage';
 import UserProfilePage from './pages/UserProfilePage';
-import CheckoutPage from './pages/CheckoutPage'; // <-- Impor halaman checkout
-import ConfirmationPage from './pages/ConfirmationPage'; // <-- Impor halaman konfirmasi
+import CheckoutPage from './pages/CheckoutPage';
+import ConfirmationPage from './pages/ConfirmationPage';
 import CartSidebar from './components/CartSidebar';
 import { Toaster } from "@/components/ui/sonner"
 import './index.css';
@@ -29,8 +29,8 @@ function App() {
             <Route path="/sell" element={<SellItemPage />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/profile" element={<UserProfilePage />} />
-            <Route path="/checkout" element={<CheckoutPage />} /> {/* <-- Rute untuk checkout */}
-            <Route path="/confirmation" element={<ConfirmationPage />} /> {/* <-- Rute untuk konfirmasi */}
+            <Route path="/checkout" element={<CheckoutPage />} />
+            <Route path="/confirmation" element={<ConfirmationPage />} />
           </Routes>
         </main>
         <Footer />

@@ -18,7 +18,6 @@ export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { openCart, cartCount } = useCart();
 
-  // Simulasi status login. Di aplikasi nyata, ini akan datang dari context atau state management.
   const isLoggedIn = true;
 
   useEffect(() => {
@@ -72,7 +71,7 @@ export default function Navbar() {
               </Button>
               
               {isLoggedIn ? (
-                <DropdownMenu modal={false}> {/* <-- TAMBAHKAN modal={false} DI SINI */}
+                <DropdownMenu modal={false}>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                       <Avatar className="h-8 w-8">

@@ -22,7 +22,6 @@ import {
 } from "@/components/ui/breadcrumb";
 import { MoreHorizontal } from 'lucide-react';
 
-// Data dummy untuk profil pengguna
 const userProfile = {
   name: "Budi Gamer",
   email: "budi.gamer@email.com",

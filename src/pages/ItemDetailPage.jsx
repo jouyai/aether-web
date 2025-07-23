@@ -14,7 +14,6 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 
-// Data dummy - di aplikasi nyata, ini akan diambil dari API
 const itemsData = {
   1: { id: 1, name: "Dragonfire Wand", game: "Fantasy Kingdom", price: "Rp 750.000", imageUrl: "https://placehold.co/800x600/171717/ffffff?text=Dragonfire+Wand", description: "Tongkat sihir legendaris yang ditempa dengan nafas naga. Memberikan kekuatan api yang luar biasa kepada penggunanya.", rating: 4.8, seller: "MageMaster" },
   2: { id: 2, name: "Shadow Cloak", game: "Cyberpunk Realms", price: "Rp 1.200.000", imageUrl: "https://placehold.co/800x600/4f46e5/ffffff?text=Shadow+Cloak", description: "Jubah yang ditenun dari bayangan digital, membuat pemakainya hampir tidak terlihat di malam hari.", rating: 4.9, seller: "NightRunner" },
@@ -36,10 +35,9 @@ export default function ItemDetailPage() {
     );
   }
 
-  // Filter untuk menemukan item terkait
   const relatedItems = Object.values(itemsData).filter(
     relatedItem => relatedItem.game === item.game && relatedItem.id !== item.id
-  ).slice(0, 4); // Ambil maksimal 4 item
+  ).slice(0, 4);
 
   return (
     <div className="container mx-auto px-4 pt-24 pb-16">
