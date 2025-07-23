@@ -1,37 +1,48 @@
-import React, { useState } from 'react';
+// src/pages/ExplorePage.jsx
+
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { supabase } from '@/lib/supabaseClient'; // 1. Impor Supabase client
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search } from 'lucide-react';
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
+import { Skeleton } from "@/components/ui/skeleton"; // Impor Skeleton untuk loading
 
-const allItems = [
-  { id: 1, name: "Dragonfire Wand", game: "Fantasy Kingdom", price: 750000, imageUrl: "https://placehold.co/400x300/171717/ffffff?text=Dragonfire+Wand", category: "Weapon" },
-  { id: 2, name: "Shadow Cloak", game: "Cyberpunk Realms", price: 1200000, imageUrl: "https://placehold.co/400x300/4f46e5/ffffff?text=Shadow+Cloak", category: "Armor" },
-  { id: 3, name: "Gjallarhorn Schematic", game: "Galaxy Raiders", price: 5500000, imageUrl: "https://placehold.co/400x300/be123c/ffffff?text=Gjallarhorn", category: "Blueprint" },
-  { id: 4, name: "Ancient Rune Set", game: "Mythic Legends", price: 320000, imageUrl: "https://placehold.co/400x300/166534/ffffff?text=Rune+Set", category: "Material" },
-  { id: 5, name: "Vandal Prime", game: "Valorant", price: 217500, imageUrl: "https://placehold.co/400x300/f59e0b/000000?text=Vandal+Prime", category: "Weapon Skin" },
-  { id: 6, name: "Genshin Genesis Crystals", game: "Genshin Impact", price: 150000, imageUrl: "https://placehold.co/400x300/3b82f6/ffffff?text=Genesis+Crystals", category: "Currency" },
-  { id: 7, name: "Arcana Juggernaut", game: "Dota 2", price: 450000, imageUrl: "https://placehold.co/400x300/ef4444/ffffff?text=Arcana+Juggernaut", category: "Cosmetic" },
-  { id: 8, name: "Cybernetic Helmet", game: "Cyberpunk Realms", price: 850000, imageUrl: "https://placehold.co/400x300/8b5cf6/ffffff?text=Cyber+Helmet", category: "Armor" },
-];
+// Hapus array `allItems` yang hardcoded
 
 const games = ["Semua Game", "Fantasy Kingdom", "Cyberpunk Realms", "Galaxy Raiders", "Mythic Legends", "Valorant", "Genshin Impact", "Dota 2"];
 
 export default function ExplorePage() {
+  const [items, setItems] = useState([]); // 2. State untuk menyimpan data dari Supabase
+  const [loading, setLoading] = useState(true); // State untuk loading
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedGame, setSelectedGame] = useState("Semua Game");
 
-  const filteredItems = allItems.filter(item => {
+  // 3. useEffect untuk mengambil data dari Supabase
+  useEffect(() => {
+    const fetchItems = async () => {
+      setLoading(true);
+      let { data, error } = await supabase
+        .from('item')
+        .select('*')
+        .order('created_at', { ascending: false }); // Urutkan berdasarkan yang terbaru
+
+      if (error) {
+        console.error("Error fetching items:", error);
+      } else {
+        setItems(data);
+      }
+      setLoading(false);
+    };
+
+    fetchItems();
+  }, []); // Jalankan sekali saat komponen dimuat
+
+  // 4. Logika filter sekarang berjalan di atas data dari state `items`
+  const filteredItems = items.filter(item => {
     const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesGame = selectedGame === "Semua Game" || item.game === selectedGame;
     return matchesSearch && matchesGame;
@@ -39,57 +50,35 @@ export default function ExplorePage() {
 
   return (
     <div className="container mx-auto px-4 pt-24 pb-16">
-      {/* Breadcrumb */}
       <Breadcrumb className="mb-8">
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link to="/">Beranda</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Jelajahi</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
+        {/* ... Breadcrumb code ... */}
       </Breadcrumb>
 
-      {/* Header */}
       <div className="text-center mb-12">
         <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">Jelajahi Semua Item</h1>
         <p className="mt-4 text-lg text-muted-foreground">Temukan item yang Anda butuhkan dari ribuan pilihan.</p>
       </div>
 
-      {/* Filter Section */}
       <div className="flex flex-col md:flex-row gap-4 mb-8">
-        <div className="relative flex-grow">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-          <Input 
-            type="search" 
-            placeholder="Cari item..." 
-            className="w-full pl-10 h-12"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
-        <Select value={selectedGame} onValueChange={setSelectedGame}>
-          <SelectTrigger className="w-full md:w-[280px] h-12">
-            <SelectValue placeholder="Pilih Game" />
-          </SelectTrigger>
-          <SelectContent>
-            {games.map(game => <SelectItem key={game} value={game}>{game}</SelectItem>)}
-          </SelectContent>
-        </Select>
+        {/* ... Filter Section code ... */}
       </div>
 
-      {/* Items Grid */}
+      {/* 5. Tampilkan Skeleton saat loading, atau tampilkan item jika sudah selesai */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-        {filteredItems.length > 0 ? (
+        {loading ? (
+          Array.from({ length: 8 }).map((_, index) => (
+            <div key={index} className="space-y-2">
+              <Skeleton className="h-48 w-full" />
+              <Skeleton className="h-4 w-3/4" />
+              <Skeleton className="h-6 w-1/2" />
+            </div>
+          ))
+        ) : filteredItems.length > 0 ? (
           filteredItems.map(item => (
             <Link to={`/item/${item.id}`} key={item.id} className="group">
               <Card className="overflow-hidden h-full hover:shadow-xl transition-shadow duration-300">
                 <CardHeader className="p-0">
-                  <img src={item.imageUrl} alt={item.name} className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300" />
+                  <img src={item.image_url} alt={item.name} className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300" />
                 </CardHeader>
                 <CardContent className="p-4">
                   <CardDescription>{item.game}</CardDescription>

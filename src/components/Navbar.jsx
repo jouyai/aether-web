@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 import { Gem, Menu, X, ShoppingCart, User, LogOut, Settings, LogIn, UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -12,13 +13,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Skeleton } from "@/components/ui/skeleton"; // Pastikan Anda sudah membuat file Skeleton
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { openCart, cartCount } = useCart();
-
-  const isLoggedIn = true;
+  const { user, signOut, loading } = useAuth(); // Ambil `loading` dari useAuth
+  const isLoggedIn = !!user;
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10);
@@ -38,6 +40,68 @@ export default function Navbar() {
     openCart();
   };
 
+  const renderNavActions = () => {
+    // Saat masih loading, tampilkan placeholder
+    if (loading) {
+      return (
+        <div className="hidden md:flex items-center gap-2">
+          <Skeleton className="h-9 w-24" />
+          <Skeleton className="h-9 w-9 rounded-full" />
+        </div>
+      );
+    }
+
+    // Setelah loading selesai, tampilkan sesuai status login
+    return (
+      <div className="hidden md:flex items-center gap-2">
+        <Button variant="ghost" size="icon" className="relative" onClick={openCart}>
+          <ShoppingCart className="h-6 w-6" />
+          {cartCount > 0 && (
+            <span className="absolute top-0 right-0 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
+              {cartCount}
+            </span>
+          )}
+        </Button>
+        
+        {isLoggedIn ? (
+          <DropdownMenu modal={false}>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                <Avatar className="h-8 w-8">
+                  <AvatarFallback>
+                    {(user.user_metadata?.username || user.email).slice(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56" align="end" forceMount>
+              <DropdownMenuLabel className="font-normal">
+                <div className="flex flex-col space-y-1">
+                  <p className="text-sm font-medium leading-none">
+                    {user.user_metadata?.username || user.email.split('@')[0]}
+                  </p>
+                  <p className="text-xs leading-none text-muted-foreground">
+                    {user.email}
+                  </p>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild><Link to="/profile"><User className="mr-2 h-4 w-4" /><span>Profil</span></Link></DropdownMenuItem>
+              <DropdownMenuItem><Settings className="mr-2 h-4 w-4" /><span>Pengaturan</span></DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={signOut}><LogOut className="mr-2 h-4 w-4" /><span>Keluar</span></DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : (
+          <>
+            <Button variant="outline" asChild><Link to="/login"><LogIn className="mr-2 h-4 w-4" />Masuk</Link></Button>
+            <Button asChild><Link to="/register"><UserPlus className="mr-2 h-4 w-4" />Daftar</Link></Button>
+          </>
+        )}
+      </div>
+    );
+  };
+
   return (
     <>
       <nav 
@@ -51,7 +115,6 @@ export default function Navbar() {
             <span>Aether</span>
           </Link>
 
-          {/* Navigasi Desktop */}
           <div className="hidden md:flex items-center gap-2">
             <Button variant="ghost" asChild><Link to="/explore">Jelajahi</Link></Button>
             <Button variant="ghost" asChild><Link to="/sell">Jual Item</Link></Button>
@@ -59,50 +122,8 @@ export default function Navbar() {
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Ikon Desktop */}
-            <div className="hidden md:flex items-center gap-2">
-              <Button variant="ghost" size="icon" className="relative" onClick={openCart}>
-                <ShoppingCart className="h-6 w-6" />
-                {cartCount > 0 && (
-                  <span className="absolute top-0 right-0 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
-                    {cartCount}
-                  </span>
-                )}
-              </Button>
-              
-              {isLoggedIn ? (
-                <DropdownMenu modal={false}>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src="https://placehold.co/100x100/E0F2FE/333?text=BG" alt="Budi Gamer" />
-                        <AvatarFallback>BG</AvatarFallback>
-                      </Avatar>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56" align="end" forceMount>
-                    <DropdownMenuLabel className="font-normal">
-                      <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">Budi Gamer</p>
-                        <p className="text-xs leading-none text-muted-foreground">budi.gamer@email.com</p>
-                      </div>
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild><Link to="/profile"><User className="mr-2 h-4 w-4" /><span>Profil</span></Link></DropdownMenuItem>
-                    <DropdownMenuItem><Settings className="mr-2 h-4 w-4" /><span>Pengaturan</span></DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem><LogOut className="mr-2 h-4 w-4" /><span>Keluar</span></DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              ) : (
-                <>
-                  <Button variant="outline" asChild><Link to="/login"><LogIn className="mr-2 h-4 w-4" />Masuk</Link></Button>
-                  <Button asChild><Link to="/register"><UserPlus className="mr-2 h-4 w-4" />Daftar</Link></Button>
-                </>
-              )}
-            </div>
+            {renderNavActions()}
             
-            {/* Tombol Menu Mobile */}
             <div className="md:hidden">
               <Button variant="ghost" size="icon" onClick={() => setIsMenuOpen(!isMenuOpen)}>
                 {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -134,7 +155,7 @@ export default function Navbar() {
               {isLoggedIn ? (
                 <div className="flex flex-col gap-4 w-full max-w-xs">
                   <Button variant="secondary" size="lg" asChild><Link to="/profile" onClick={closeMenu}><User className="mr-2 h-4 w-4" />Profil Saya</Link></Button>
-                  <Button variant="destructive" size="lg"><LogOut className="mr-2 h-4 w-4" />Keluar</Button>
+                  <Button variant="destructive" size="lg" onClick={() => { closeMenu(); signOut(); }}><LogOut className="mr-2 h-4 w-4" />Keluar</Button>
                 </div>
               ) : (
                 <div className="flex flex-col gap-4 w-full max-w-xs">

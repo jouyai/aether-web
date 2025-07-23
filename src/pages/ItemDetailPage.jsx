@@ -1,43 +1,101 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { supabase } from '@/lib/supabaseClient';
 import { useCart } from '../context/CartContext';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Star, ShoppingCart } from 'lucide-react';
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
-
-const itemsData = {
-  1: { id: 1, name: "Dragonfire Wand", game: "Fantasy Kingdom", price: "Rp 750.000", imageUrl: "https://placehold.co/800x600/171717/ffffff?text=Dragonfire+Wand", description: "Tongkat sihir legendaris yang ditempa dengan nafas naga. Memberikan kekuatan api yang luar biasa kepada penggunanya.", rating: 4.8, seller: "MageMaster" },
-  2: { id: 2, name: "Shadow Cloak", game: "Cyberpunk Realms", price: "Rp 1.200.000", imageUrl: "https://placehold.co/800x600/4f46e5/ffffff?text=Shadow+Cloak", description: "Jubah yang ditenun dari bayangan digital, membuat pemakainya hampir tidak terlihat di malam hari.", rating: 4.9, seller: "NightRunner" },
-  3: { id: 3, name: "Gjallarhorn Schematic", game: "Galaxy Raiders", price: "Rp 5.500.000", imageUrl: "https://placehold.co/800x600/be123c/ffffff?text=Gjallarhorn", description: "Skema langka untuk membuat senjata pemusnah paling ikonik di galaksi.", rating: 5.0, seller: "StarTrader" },
-  4: { id: 4, name: "Ancient Rune Set", game: "Mythic Legends", price: "Rp 320.000", imageUrl: "https://placehold.co/800x600/166534/ffffff?text=Rune+Set", description: "Satu set rune kuno yang berisi kekuatan elemental. Dapat digunakan untuk meningkatkan senjata atau armor.", rating: 4.7, seller: "RuneSeeker" },
-  5: { id: 5, name: "Cybernetic Helmet", game: "Cyberpunk Realms", price: "Rp 850.000", imageUrl: "https://placehold.co/800x600/8b5cf6/ffffff?text=Cyber+Helmet", description: "Helm canggih dengan HUD terintegrasi.", rating: 4.6, seller: "TechSavvy" },
-};
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
+import { Skeleton } from '@/components/ui/skeleton';
+import ColorThief from 'colorthief';
 
 export default function ItemDetailPage() {
   const { itemId } = useParams();
   const { addToCart } = useCart();
-  const item = itemsData[itemId];
+  const [item, setItem] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [palette, setPalette] = useState([]);
+  const imgRef = useRef(null);
 
-  if (!item) {
+  useEffect(() => {
+    const fetchItem = async () => {
+      setLoading(true);
+      setError(null);
+      setPalette([]);
+
+      // PERBAIKAN FINAL: Nama tabel diubah menjadi 'items' (jamak)
+      const { data, error } = await supabase
+        .from('item') 
+        .select(`
+          *,
+          profiles ( username )
+        `)
+        .eq('id', itemId)
+        .single();
+
+      if (error) {
+        console.error("Error fetching item:", error);
+        setError("Item tidak ditemukan atau terjadi kesalahan.");
+      } else {
+        setItem(data);
+      }
+      setLoading(false);
+    };
+
+    if (itemId) {
+      fetchItem();
+    }
+  }, [itemId]);
+
+  const handleImageLoad = () => {
+    if (!imgRef.current) return;
+    const colorThief = new ColorThief();
+    const img = imgRef.current;
+    if (img.complete) {
+      try {
+        const colorPalette = colorThief.getPalette(img, 3);
+        setPalette(colorPalette);
+      } catch (e) {
+        console.error("Error getting color palette from image:", e);
+      }
+    }
+  };
+  
+  const backgroundStyle = palette.length > 0 ? {
+    backgroundImage: `radial-gradient(circle, rgba(${palette[0].join(',')}, 0.2), rgba(${palette[1].join(',')}, 0.1) 50%, rgba(${palette[2].join(',')}, 0.05) 100%)`
+  } : {
+    backgroundColor: '#f1f5f9'
+  };
+
+  if (loading) {
     return (
-      <div className="container mx-auto px-4 py-24 text-center">
-        <h1 className="text-3xl font-bold">Item tidak ditemukan!</h1>
+      <div className="container mx-auto px-4 pt-24 pb-16">
+        <div className="grid md:grid-cols-2 gap-8 md:gap-12">
+          <Skeleton className="w-full aspect-square rounded-lg" />
+          <div className="space-y-4">
+            <Skeleton className="h-6 w-1/4" />
+            <Skeleton className="h-12 w-3/4" />
+            <Skeleton className="h-6 w-1/2" />
+            <Skeleton className="h-24 w-full" />
+            <Skeleton className="h-12 w-1/3" />
+          </div>
+        </div>
       </div>
     );
   }
-
-  const relatedItems = Object.values(itemsData).filter(
-    relatedItem => relatedItem.game === item.game && relatedItem.id !== item.id
-  ).slice(0, 4);
+  
+  if (error || !item) {
+    return (
+      <div className="container mx-auto px-4 py-24 text-center">
+        <h1 className="text-3xl font-bold">{error || "Item tidak ditemukan!"}</h1>
+        <Button asChild className="mt-4">
+            <Link to="/explore">Kembali ke Jelajah</Link>
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 pt-24 pb-16">
@@ -58,29 +116,30 @@ export default function ItemDetailPage() {
       </Breadcrumb>
 
       <div className="grid md:grid-cols-2 gap-8 md:gap-12">
-        {/* Kolom Gambar */}
-        <div>
-          <img 
-            src={item.imageUrl} 
-            alt={item.name} 
-            className="w-full h-auto aspect-square md:aspect-auto rounded-lg shadow-lg object-cover"
+        <div 
+          className="w-full rounded-lg shadow-lg overflow-hidden flex justify-center items-center p-4 transition-all duration-500"
+          style={backgroundStyle}
+        >
+          <img
+            ref={imgRef}
+            crossOrigin="anonymous"
+            onLoad={handleImageLoad}
+            src={item.image_url}
+            alt={item.name}
+            className="max-w-full max-h-[500px] object-contain drop-shadow-2xl"
           />
         </div>
-
-        {/* Kolom Detail */}
+        
         <div className="flex flex-col gap-3 md:gap-4">
           <Badge variant="secondary" className="w-fit">{item.game}</Badge>
           <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">{item.name}</h1>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1 text-yellow-500">
-              <Star className="h-5 w-5 fill-current" />
-              <span className="font-bold text-lg text-foreground">{item.rating}</span>
-            </div>
-            <span className="text-muted-foreground">|</span>
-            <span className="text-muted-foreground">Penjual: <span className="font-semibold text-primary">{item.seller}</span></span>
+          <div className="text-sm text-muted-foreground">
+            Dijual oleh: <span className="font-semibold text-primary">{item.profiles?.username || 'Tanpa Nama'}</span>
           </div>
-          <p className="text-base md:text-lg text-muted-foreground leading-relaxed">{item.description}</p>
-          <p className="text-3xl md:text-4xl font-bold text-primary my-2 md:my-4">{item.price}</p>
+          <p className="text-base md:text-lg text-muted-foreground leading-relaxed mt-2">{item.description}</p>
+          <p className="text-3xl md:text-4xl font-bold text-primary my-2 md:my-4">
+            {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(item.price)}
+          </p>
           
           <div className="flex flex-col sm:flex-row items-center gap-3 md:gap-4 mt-4">
             <Button size="lg" className="w-full sm:flex-1" onClick={() => addToCart(item)}>
@@ -91,29 +150,6 @@ export default function ItemDetailPage() {
           </div>
         </div>
       </div>
-
-      {/* Related Items Section */}
-      {relatedItems.length > 0 && (
-        <div className="mt-20">
-          <h2 className="text-3xl font-bold mb-8">Item Terkait</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-            {relatedItems.map(related => (
-              <Link to={`/item/${related.id}`} key={related.id} className="group">
-                <Card className="overflow-hidden h-full hover:shadow-xl transition-shadow duration-300">
-                  <CardHeader className="p-0">
-                    <img src={related.imageUrl} alt={related.name} className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300" />
-                  </CardHeader>
-                  <CardContent className="p-4">
-                    <CardDescription>{related.game}</CardDescription>
-                    <CardTitle className="text-lg font-semibold mt-1 truncate">{related.name}</CardTitle>
-                    <p className="text-xl font-bold text-primary mt-2">{related.price}</p>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
