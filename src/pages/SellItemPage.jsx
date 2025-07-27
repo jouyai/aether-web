@@ -1,6 +1,4 @@
-// src/pages/SellItemPage.jsx
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '../context/AuthContext';
@@ -14,8 +12,6 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { toast } from "sonner";
 
-const games = ["Fantasy Kingdom", "Cyberpunk Realms", "Galaxy Raiders", "Mythic Legends", "Valorant", "Genshin Impact", "Dota 2"];
-
 export default function SellItemPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -24,18 +20,45 @@ export default function SellItemPage() {
   const [game, setGame] = useState('');
   const [price, setPrice] = useState('');
   const [description, setDescription] = useState('');
-  const [imageFile, setImageFile] = useState(null);
+  const [imageFiles, setImageFiles] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [gameList, setGameList] = useState([]); // State untuk daftar game
+
+  // Mengambil daftar game dari Supabase
+  useEffect(() => {
+    const fetchGames = async () => {
+      const { data, error } = await supabase
+        .from('games')
+        .select('name')
+        .order('name', { ascending: true });
+
+      if (error) {
+        console.error("Error fetching games:", error);
+      } else {
+        setGameList(data);
+      }
+    };
+    fetchGames();
+  }, []);
 
   const resetForm = () => {
     setItemName('');
     setGame('');
     setPrice('');
     setDescription('');
-    setImageFile(null);
+    setImageFiles([]);
     if (document.getElementById('image')) {
       document.getElementById('image').value = "";
     }
+  };
+  
+  const handleFileChange = (e) => {
+    if (e.target.files.length > 5) {
+      toast.error("Anda hanya dapat mengunggah maksimal 5 gambar.");
+      e.target.value = ""; 
+      return;
+    }
+    setImageFiles(Array.from(e.target.files));
   };
 
   const handleConfirmSell = async () => {
@@ -43,41 +66,44 @@ export default function SellItemPage() {
       toast.error("Anda harus login untuk menjual item.");
       return;
     }
-    if (!itemName || !game || !price || !description || !imageFile) {
-        toast.error("Semua field, termasuk gambar, wajib diisi!");
+    if (!itemName || !game || !price || !description || imageFiles.length === 0) {
+        toast.error("Semua field dan minimal satu gambar wajib diisi!");
         return;
     }
 
     setLoading(true);
 
     try {
-      // 1. Upload gambar ke Supabase Storage
-      const fileExt = imageFile.name.split('.').pop();
-      const fileName = `${user.id}-${Date.now()}.${fileExt}`;
-      const filePath = `private/${fileName}`; // PERBAIKAN: Upload ke folder 'private'
+      const imageUrls = await Promise.all(
+        imageFiles.map(async (file) => {
+          const fileExt = file.name.split('.').pop();
+          const fileName = `${user.id}-${Date.now()}-${Math.random()}.${fileExt}`;
+          const filePath = `public/${fileName}`;
 
-      let { error: uploadError } = await supabase.storage
-        .from('item-images')
-        .upload(filePath, imageFile);
+          let { error: uploadError } = await supabase.storage
+            .from('item-images')
+            .upload(filePath, file);
 
-      if (uploadError) {
-        throw uploadError;
-      }
+          if (uploadError) {
+            throw new Error(`Gagal mengunggah gambar: ${uploadError.message}`);
+          }
 
-      // 2. Dapatkan URL publik dari gambar yang baru di-upload
-      const { data: { publicUrl } } = supabase.storage
-        .from('item-images')
-        .getPublicUrl(filePath);
-
-      // 3. Masukkan data item ke dalam tabel 'items' di database
+          const { data: { publicUrl } } = supabase.storage
+            .from('item-images')
+            .getPublicUrl(filePath);
+            
+          return publicUrl;
+        })
+      );
+      
       const { error: insertError } = await supabase
-        .from('item')
+        .from('items')
         .insert({
           name: itemName,
           game: game,
           price: Number(price),
           description: description,
-          image_url: publicUrl,
+          image_urls: imageUrls,
           seller_id: user.id,
         });
 
@@ -124,7 +150,9 @@ export default function SellItemPage() {
               <Label htmlFor="game">Game</Label>
               <Select onValueChange={setGame} value={game}>
                 <SelectTrigger id="game"><SelectValue placeholder="Pilih game asal item" /></SelectTrigger>
-                <SelectContent>{games.map(g => <SelectItem key={g} value={g}>{g}</SelectItem>)}</SelectContent>
+                <SelectContent>
+                  {gameList.map(g => <SelectItem key={g.name} value={g.name}>{g.name}</SelectItem>)}
+                </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
@@ -136,9 +164,17 @@ export default function SellItemPage() {
               <Textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Jelaskan detail item Anda..." required />
             </div>
             <div className="space-y-2">
-                <Label htmlFor="image">Gambar Item</Label>
-                <Input id="image" type="file" className="pt-2" accept="image/png, image/jpeg" onChange={(e) => setImageFile(e.target.files[0])} required/>
-                <p className="text-sm text-muted-foreground">Unggah screenshot atau gambar item Anda.</p>
+                <Label htmlFor="image">Gambar Item (Maks. 5)</Label>
+                <Input 
+                  id="image" 
+                  type="file" 
+                  className="pt-2" 
+                  accept="image/png, image/jpeg" 
+                  onChange={handleFileChange}
+                  multiple
+                  required
+                />
+                <p className="text-sm text-muted-foreground">Pilih 1 hingga 5 gambar untuk item Anda.</p>
             </div>
             <AlertDialog>
               <AlertDialogTrigger asChild>

@@ -1,5 +1,3 @@
-// src/pages/RegisterPage.jsx
-
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/lib/supabaseClient";
@@ -19,12 +17,35 @@ export default function RegisterPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [username, setUsername] = useState(""); // 1. Tambahkan state untuk username
+  const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleRegister = async (event) => {
     event.preventDefault();
     setLoading(true);
+
+    try {
+      const { data: existingProfile, error: usernameError } = await supabase
+        .from('profiles')
+        .select('username')
+        .eq('username', username)
+        .single();
+
+      if (existingProfile) {
+        toast.error("Username ini sudah digunakan. Silakan pilih yang lain.");
+        setLoading(false);
+        return;
+      }
+      
+      if (usernameError && usernameError.code !== 'PGRST116') {
+        throw usernameError;
+      }
+
+    } catch (error) {
+        toast.error("Gagal memvalidasi username. Coba lagi.");
+        setLoading(false);
+        return;
+    }
 
     const { data, error } = await supabase.auth.signUp({
       email: email,
@@ -37,16 +58,19 @@ export default function RegisterPage() {
     });
 
     if (error) {
-      toast.error(error.message);
+      if (error.message.includes("User already registered")) {
+        toast.error("Email ini sudah terdaftar. Silakan gunakan email lain.");
+      } else {
+        toast.error(error.message);
+      }
     } else {
-      // TAMBAHKAN BARIS INI UNTUK LOGOUT OTOMATIS
       await supabase.auth.signOut();
-
       toast.success(
         "Registrasi berhasil! Silakan masuk dengan akun baru Anda."
       );
       navigate("/login");
     }
+    
     setLoading(false);
   };
 
@@ -61,7 +85,6 @@ export default function RegisterPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleRegister} className="space-y-6">
-            {/* 3. Tambahkan input field untuk username */}
             <div className="space-y-2">
               <Label htmlFor="username">Username</Label>
               <Input

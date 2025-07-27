@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { Gem, Menu, X, ShoppingCart, User, LogOut, Settings, LogIn, UserPlus } from 'lucide-react';
@@ -13,14 +13,20 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Skeleton } from "@/components/ui/skeleton"; // Pastikan Anda sudah membuat file Skeleton
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { openCart, cartCount } = useCart();
-  const { user, signOut, loading } = useAuth(); // Ambil `loading` dari useAuth
+  const { user, signOut, loading } = useAuth();
   const isLoggedIn = !!user;
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10);
@@ -41,7 +47,6 @@ export default function Navbar() {
   };
 
   const renderNavActions = () => {
-    // Saat masih loading, tampilkan placeholder
     if (loading) {
       return (
         <div className="hidden md:flex items-center gap-2">
@@ -51,7 +56,6 @@ export default function Navbar() {
       );
     }
 
-    // Setelah loading selesai, tampilkan sesuai status login
     return (
       <div className="hidden md:flex items-center gap-2">
         <Button variant="ghost" size="icon" className="relative" onClick={openCart}>
@@ -89,7 +93,7 @@ export default function Navbar() {
               <DropdownMenuItem asChild><Link to="/profile"><User className="mr-2 h-4 w-4" /><span>Profil</span></Link></DropdownMenuItem>
               <DropdownMenuItem><Settings className="mr-2 h-4 w-4" /><span>Pengaturan</span></DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={signOut}><LogOut className="mr-2 h-4 w-4" /><span>Keluar</span></DropdownMenuItem>
+              <DropdownMenuItem onClick={handleSignOut}><LogOut className="mr-2 h-4 w-4" /><span>Keluar</span></DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         ) : (
@@ -155,7 +159,7 @@ export default function Navbar() {
               {isLoggedIn ? (
                 <div className="flex flex-col gap-4 w-full max-w-xs">
                   <Button variant="secondary" size="lg" asChild><Link to="/profile" onClick={closeMenu}><User className="mr-2 h-4 w-4" />Profil Saya</Link></Button>
-                  <Button variant="destructive" size="lg" onClick={() => { closeMenu(); signOut(); }}><LogOut className="mr-2 h-4 w-4" />Keluar</Button>
+                  <Button variant="destructive" size="lg" onClick={() => { closeMenu(); handleSignOut(); }}><LogOut className="mr-2 h-4 w-4" />Keluar</Button>
                 </div>
               ) : (
                 <div className="flex flex-col gap-4 w-full max-w-xs">

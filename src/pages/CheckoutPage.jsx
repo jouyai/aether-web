@@ -17,10 +17,14 @@ import {
 import { toast } from "sonner";
 
 export default function CheckoutPage() {
-  const { cartItems, cartCount } = useCart();
+  // 👇 1. Ambil fungsi `clearCart` dari hook useCart 👇
+  const { cartItems, cartCount, clearCart } = useCart();
   const navigate = useNavigate();
 
-  const parsePrice = (priceString) => Number(priceString.replace(/[^0-9]/g, ''));
+  const parsePrice = (priceValue) => {
+    if (typeof priceValue !== 'string' && typeof priceValue !== 'number') return 0;
+    return Number(String(priceValue).replace(/[^0-9]/g, ''));
+  };
 
   const subtotal = cartItems.reduce((acc, item) => {
     return acc + parsePrice(item.price) * item.quantity;
@@ -31,7 +35,12 @@ export default function CheckoutPage() {
 
   const handlePayment = () => {
     toast.success("Pembayaran berhasil! Mengarahkan ke konfirmasi...");
+    
+    // Kirim data pesanan ke halaman konfirmasi
     navigate('/confirmation', { state: { order: cartItems, total } });
+    
+    // 👇 2. Panggil fungsi clearCart untuk mengosongkan keranjang 👇
+    clearCart();
   };
 
   if (cartCount === 0) {
@@ -103,7 +112,7 @@ export default function CheckoutPage() {
                 {cartItems.map(item => (
                   <div key={item.id} className="flex justify-between text-sm">
                     <span className="text-muted-foreground">{item.name} x{item.quantity}</span>
-                    <span>{item.price}</span>
+                    <span>{new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(item.price)}</span>
                   </div>
                 ))}
               </div>

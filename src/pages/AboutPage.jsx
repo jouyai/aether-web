@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/breadcrumb";
 
 const teamMembers = [
-  { name: "Andi Wijaya", role: "Founder & CEO", imageUrl: "https://placehold.co/100x100/EFEFEF/333?text=AW" },
+  { name: "Ary Budiarto", role: "Founder & CEO", imageUrl: "https://placehold.co/100x100/EFEFEF/333?text=AB" },
   { name: "Bunga Citra", role: "Lead Developer", imageUrl: "https://placehold.co/100x100/E0F2FE/333?text=BC" },
   { name: "Candra Perkasa", role: "Head of Marketing", imageUrl: "https://placehold.co/100x100/D1FAE5/333?text=CP" },
 ];

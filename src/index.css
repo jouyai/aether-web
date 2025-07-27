@@ -66,3 +66,105 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* CSS for Embla Carousel Slider - MOBILE RESPONSIVE */
+.embla {
+  position: relative;
+}
+.embla__viewport {
+  overflow: hidden;
+}
+.embla__container {
+  backface-visibility: hidden;
+  display: flex;
+  touch-action: pan-y;
+  height: auto;
+}
+.embla__slide {
+  flex: 0 0 100%;
+  min-width: 0;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* Tinggi slider untuk mobile */
+  height: 350px; 
+  background-color: hsl(var(--secondary) / 0.3);
+}
+/* Tinggi slider untuk layar medium (tablet) ke atas */
+@media (min-width: 768px) {
+  .embla__slide {
+    height: 500px;
+  }
+}
+.embla__slide__img {
+  display: block;
+  height: 100%;
+  width: 100%;
+  object-fit: contain;
+}
+.embla__button {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  transform: translateY(-50%);
+  border-radius: 9999px;
+  background-color: hsla(var(--background) / 0.75);
+  color: hsl(var(--foreground));
+  /* Ukuran tombol untuk mobile */
+  width: 2.25rem; /* 36px */
+  height: 2.25rem; /* 36px */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+/* Ukuran tombol untuk layar medium ke atas */
+@media (min-width: 768px) {
+  .embla__button {
+    width: 2.75rem; /* 44px */
+    height: 2.75rem; /* 44px */
+  }
+}
+.embla:hover .embla__button {
+  opacity: 1;
+}
+.embla__button--prev {
+  /* Posisi tombol untuk mobile */
+  left: 0.5rem; 
+}
+.embla__button--next {
+  /* Posisi tombol untuk mobile */
+  right: 0.5rem; 
+}
+/* Posisi tombol untuk layar medium ke atas */
+@media (min-width: 768px) {
+  .embla__button--prev {
+    left: 1rem;
+  }
+  .embla__button--next {
+    right: 1rem;
+  }
+}
+.embla__dots {
+  position: absolute;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+.embla__dot {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 9999px;
+  background-color: hsla(var(--background) / 0.5);
+  transition: background-color 0.2s;
+  cursor: pointer;
+}
+.embla__dot--selected {
+  background-color: hsl(var(--background));
+}

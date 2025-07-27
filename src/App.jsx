@@ -15,9 +15,11 @@ import CartSidebar from "./components/CartSidebar";
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import { Toaster } from "@/components/ui/sonner";
+import ProtectedRoute from "./components/ProtectedRoute";
 import "./index.css";
+import { useAuth } from "./context/AuthContext";
 
-function App() {
+function AppContent() {
   return (
     <BrowserRouter>
       <ScrollToTop />
@@ -26,17 +28,29 @@ function App() {
         <main className="flex-grow">
           <CartSidebar />
           <Routes>
+            {/* Rute Publik */}
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/item/:itemId" element={<ItemDetailPage />} />
             <Route path="/explore" element={<ExplorePage />} />
-            <Route path="/sell" element={<SellItemPage />} />
             <Route path="/about" element={<AboutPage />} />
-            <Route path="/profile" element={<UserProfilePage />} />
-            <Route path="/profile/edit" element={<EditProfilePage />} />
             <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/confirmation" element={<ConfirmationPage />} />
+
+            {/* Rute Terlindungi */}
+            <Route 
+              path="/sell" 
+              element={<ProtectedRoute><SellItemPage /></ProtectedRoute>} 
+            />
+            <Route 
+              path="/profile" 
+              element={<ProtectedRoute><UserProfilePage /></ProtectedRoute>} 
+            />
+            <Route 
+              path="/profile/edit" 
+              element={<ProtectedRoute><EditProfilePage /></ProtectedRoute>} 
+            />
           </Routes>
         </main>
         <Footer />
@@ -44,6 +58,20 @@ function App() {
       </div>
     </BrowserRouter>
   );
+}
+
+function App() {
+  const { loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-background">
+        <p className="text-muted-foreground">Memuat Aether...</p>
+      </div>
+    );
+  }
+
+  return <AppContent />;
 }
 
 export default App;

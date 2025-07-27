@@ -1,14 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { supabase } from '@/lib/supabaseClient';
 import { useCart } from '../context/CartContext';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Star, ShoppingCart } from 'lucide-react';
+import { ShoppingCart } from 'lucide-react';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { Skeleton } from '@/components/ui/skeleton';
-import ColorThief from 'colorthief';
+import ImageSlider from '../components/ImageSlider'; // Impor komponen slider
 
 export default function ItemDetailPage() {
   const { itemId } = useParams();
@@ -16,22 +15,15 @@ export default function ItemDetailPage() {
   const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [palette, setPalette] = useState([]);
-  const imgRef = useRef(null);
 
   useEffect(() => {
     const fetchItem = async () => {
       setLoading(true);
       setError(null);
-      setPalette([]);
 
-      // PERBAIKAN FINAL: Nama tabel diubah menjadi 'items' (jamak)
       const { data, error } = await supabase
-        .from('item') 
-        .select(`
-          *,
-          profiles ( username )
-        `)
+        .from('items')
+        .select(`*, profiles ( username )`)
         .eq('id', itemId)
         .single();
 
@@ -49,31 +41,11 @@ export default function ItemDetailPage() {
     }
   }, [itemId]);
 
-  const handleImageLoad = () => {
-    if (!imgRef.current) return;
-    const colorThief = new ColorThief();
-    const img = imgRef.current;
-    if (img.complete) {
-      try {
-        const colorPalette = colorThief.getPalette(img, 3);
-        setPalette(colorPalette);
-      } catch (e) {
-        console.error("Error getting color palette from image:", e);
-      }
-    }
-  };
-  
-  const backgroundStyle = palette.length > 0 ? {
-    backgroundImage: `radial-gradient(circle, rgba(${palette[0].join(',')}, 0.2), rgba(${palette[1].join(',')}, 0.1) 50%, rgba(${palette[2].join(',')}, 0.05) 100%)`
-  } : {
-    backgroundColor: '#f1f5f9'
-  };
-
   if (loading) {
     return (
       <div className="container mx-auto px-4 pt-24 pb-16">
         <div className="grid md:grid-cols-2 gap-8 md:gap-12">
-          <Skeleton className="w-full aspect-square rounded-lg" />
+          <Skeleton className="w-full h-[500px] rounded-lg" />
           <div className="space-y-4">
             <Skeleton className="h-6 w-1/4" />
             <Skeleton className="h-12 w-3/4" />
@@ -97,38 +69,25 @@ export default function ItemDetailPage() {
     );
   }
 
+  const images = Array.isArray(item.image_urls) && item.image_urls.length > 0
+    ? item.image_urls
+    : [];
+
   return (
     <div className="container mx-auto px-4 pt-24 pb-16">
       <Breadcrumb className="mb-8">
         <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild><Link to="/">Beranda</Link></BreadcrumbLink>
-          </BreadcrumbItem>
+          <BreadcrumbItem><BreadcrumbLink asChild><Link to="/">Beranda</Link></BreadcrumbLink></BreadcrumbItem>
           <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild><Link to="/explore">Jelajahi</Link></BreadcrumbLink>
-          </BreadcrumbItem>
+          <BreadcrumbItem><BreadcrumbLink asChild><Link to="/explore">Jelajahi</Link></BreadcrumbLink></BreadcrumbItem>
           <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>{item.name}</BreadcrumbPage>
-          </BreadcrumbItem>
+          <BreadcrumbItem><BreadcrumbPage>{item.name}</BreadcrumbPage></BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
 
       <div className="grid md:grid-cols-2 gap-8 md:gap-12">
-        <div 
-          className="w-full rounded-lg shadow-lg overflow-hidden flex justify-center items-center p-4 transition-all duration-500"
-          style={backgroundStyle}
-        >
-          <img
-            ref={imgRef}
-            crossOrigin="anonymous"
-            onLoad={handleImageLoad}
-            src={item.image_url}
-            alt={item.name}
-            className="max-w-full max-h-[500px] object-contain drop-shadow-2xl"
-          />
-        </div>
+        {/* Menggunakan komponen ImageSlider */}
+        <ImageSlider slides={images} />
         
         <div className="flex flex-col gap-3 md:gap-4">
           <Badge variant="secondary" className="w-fit">{item.game}</Badge>

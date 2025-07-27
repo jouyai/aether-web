@@ -8,8 +8,8 @@ export default function CartSidebar() {
   const { isCartOpen, closeCart, cartItems, removeFromCart, increaseQuantity, decreaseQuantity } = useCart();
 
   const parsePrice = (priceString) => {
-    if (typeof priceString !== 'string') return 0;
-    return Number(priceString.replace(/[^0-9]/g, ''));
+    if (typeof priceString !== 'string' && typeof priceString !== 'number') return 0;
+    return Number(String(priceString).replace(/[^0-9]/g, ''));
   };
 
   const total = cartItems.reduce((acc, item) => {
@@ -40,19 +40,12 @@ export default function CartSidebar() {
               <div className="space-y-4">
                 {cartItems.map(item => (
                   <div key={item.id} className="flex items-center gap-4">
-                    <img src={item.imageUrl} alt={item.name} className="w-20 h-20 rounded-md object-cover" />
+                    <img src={item.image_urls[0]} alt={item.name} className="w-20 h-20 rounded-md object-cover" />
                     <div className="flex-grow">
                       <p className="font-semibold">{item.name}</p>
                       <div className="flex items-center gap-2 mt-1">
-                        <Button variant="outline" size="icon" className="h-6 w-6" onClick={() => decreaseQuantity(item.id)}>
-                            <Minus className="h-4 w-4" />
-                        </Button>
-                        <span className="text-sm w-4 text-center">{item.quantity}</span>
-                        <Button variant="outline" size="icon" className="h-6 w-6" onClick={() => increaseQuantity(item.id)}>
-                            <Plus className="h-4 w-4" />
-                        </Button>
+                         <p className="font-bold text-primary">{new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(item.price)}</p>
                       </div>
-                      <p className="font-bold text-primary mt-2">{item.price}</p>
                     </div>
                     <Button variant="destructive" size="icon" onClick={() => removeFromCart(item.id)}>
                       <Trash2 className="h-4 w-4" />
