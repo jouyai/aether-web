@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, Navigate } from "react-router-dom"; // ⬅️ Tambah Navigate
 import { supabase } from "@/lib/supabaseClient";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,13 +12,20 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { toast } from "sonner";
+import { useAuth } from "@/context/AuthContext"; // ⬅️ Tambah useAuth
 
 export default function RegisterPage() {
   const navigate = useNavigate();
+  const { user } = useAuth(); // ⬅️ Ambil user dari context
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // ⛔ Redirect jika sudah login
+  if (user) {
+    return <Navigate to="/" replace />;
+  }
 
   const handleRegister = async (event) => {
     event.preventDefault();
@@ -26,9 +33,9 @@ export default function RegisterPage() {
 
     try {
       const { data: existingProfile, error: usernameError } = await supabase
-        .from('profiles')
-        .select('username')
-        .eq('username', username)
+        .from("profiles")
+        .select("username")
+        .eq("username", username)
         .single();
 
       if (existingProfile) {
@@ -36,15 +43,14 @@ export default function RegisterPage() {
         setLoading(false);
         return;
       }
-      
-      if (usernameError && usernameError.code !== 'PGRST116') {
+
+      if (usernameError && usernameError.code !== "PGRST116") {
         throw usernameError;
       }
-
     } catch (error) {
-        toast.error("Gagal memvalidasi username. Coba lagi.");
-        setLoading(false);
-        return;
+      toast.error("Gagal memvalidasi username. Coba lagi.");
+      setLoading(false);
+      return;
     }
 
     const { data, error } = await supabase.auth.signUp({
@@ -70,7 +76,7 @@ export default function RegisterPage() {
       );
       navigate("/login");
     }
-    
+
     setLoading(false);
   };
 

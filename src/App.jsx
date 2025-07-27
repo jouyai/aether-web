@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import ErrorBoundary from "./components/ErrorBoundary";
 import ScrollToTop from "./components/ScrollToTop";
 import HomePage from "./pages/HomePage";
 import ItemDetailPage from "./pages/ItemDetailPage";
@@ -8,15 +9,14 @@ import ExplorePage from "./pages/ExplorePage";
 import SellItemPage from "./pages/SellItemPage";
 import AboutPage from "./pages/AboutPage";
 import UserProfilePage from "./pages/UserProfilePage";
-import EditProfilePage from './pages/EditProfilePage';
+import EditProfilePage from "./pages/EditProfilePage";
 import CheckoutPage from "./pages/CheckoutPage";
 import ConfirmationPage from "./pages/ConfirmationPage";
 import CartSidebar from "./components/CartSidebar";
-import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
 import { Toaster } from "@/components/ui/sonner";
 import ProtectedRoute from "./components/ProtectedRoute";
-import "./index.css";
 import { useAuth } from "./context/AuthContext";
 
 function AppContent() {
@@ -39,17 +39,29 @@ function AppContent() {
             <Route path="/confirmation" element={<ConfirmationPage />} />
 
             {/* Rute Terlindungi */}
-            <Route 
-              path="/sell" 
-              element={<ProtectedRoute><SellItemPage /></ProtectedRoute>} 
+            <Route
+              path="/sell"
+              element={
+                <ProtectedRoute>
+                  <SellItemPage />
+                </ProtectedRoute>
+              }
             />
-            <Route 
-              path="/profile" 
-              element={<ProtectedRoute><UserProfilePage /></ProtectedRoute>} 
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <UserProfilePage />
+                </ProtectedRoute>
+              }
             />
-            <Route 
-              path="/profile/edit" 
-              element={<ProtectedRoute><EditProfilePage /></ProtectedRoute>} 
+            <Route
+              path="/profile/edit"
+              element={
+                <ProtectedRoute>
+                  <EditProfilePage />
+                </ProtectedRoute>
+              }
             />
           </Routes>
         </main>
@@ -71,7 +83,11 @@ function App() {
     );
   }
 
-  return <AppContent />;
+  return (
+    <ErrorBoundary>
+      <AppContent />
+    </ErrorBoundary>
+  );
 }
 
 export default App;

@@ -1,18 +1,30 @@
-// src/pages/LoginPage.jsx
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Navigate } from 'react-router-dom'; // ⬅️ Tambahkan Navigate
 import { supabase } from '@/lib/supabaseClient';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription
+} from '@/components/ui/card';
 import { toast } from "sonner";
+import { useAuth } from '@/context/AuthContext'; // ⬅️ Tambahkan ini
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const { user } = useAuth(); // ⬅️ Tambahkan ini
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // ⛔ Kalau user udah login, langsung arahkan ke home
+  if (user) {
+    return <Navigate to="/" replace />;
+  }
 
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -29,6 +41,7 @@ export default function LoginPage() {
       toast.success("Login berhasil!");
       navigate('/');
     }
+
     setLoading(false);
   };
 
