@@ -16,21 +16,9 @@ export const AuthProvider = ({ children }) => {
         error,
       } = await supabase.auth.getSession();
 
-      if (error) {
-        if (process.env.NODE_ENV === "development") {
-          console.error("Error getting session:", error.message);
-        }
-      }
-
       if (session?.user) {
-        if (process.env.NODE_ENV === "development") {
-          console.log("Auth: user session found", session.user);
-        }
         setUser(session.user);
       } else {
-        if (process.env.NODE_ENV === "development") {
-          console.log("Auth: no session, user is guest");
-        }
         setUser(false);
       }
 
@@ -39,10 +27,7 @@ export const AuthProvider = ({ children }) => {
 
     getSession();
 
-    subscription = supabase.auth.onAuthStateChange((event, session) => {
-      if (process.env.NODE_ENV === "development") {
-        console.log("Auth event:", event);
-      }
+    subscription = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
         setUser(session.user);
       } else {
@@ -55,8 +40,13 @@ export const AuthProvider = ({ children }) => {
     };
   }, []);
 
+  const signOut = async () => {
+    await supabase.auth.signOut();
+    setUser(false);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading }}>
+    <AuthContext.Provider value={{ user, loading, signOut }}>
       {children}
     </AuthContext.Provider>
   );
