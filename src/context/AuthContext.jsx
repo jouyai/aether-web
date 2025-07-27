@@ -4,10 +4,12 @@ import { supabase } from "@/lib/supabaseClient";
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null); // Bisa null (belum siap) | false (guest) | object (user)
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let subscription;
+
     const getSession = async () => {
       const {
         data: { session },
@@ -15,15 +17,21 @@ export const AuthProvider = ({ children }) => {
       } = await supabase.auth.getSession();
 
       if (error) {
-        console.error("Error getting session:", error.message);
+        if (process.env.NODE_ENV === "development") {
+          console.error("Error getting session:", error.message);
+        }
       }
 
       if (session?.user) {
-        console.log("Auth change detected: ", session.user);
+        if (process.env.NODE_ENV === "development") {
+          console.log("Auth: user session found", session.user);
+        }
         setUser(session.user);
       } else {
-        console.log("User is guest (no session)");
-        setUser(false); // Biar konsisten, false artinya guest
+        if (process.env.NODE_ENV === "development") {
+          console.log("Auth: no session, user is guest");
+        }
+        setUser(false);
       }
 
       setLoading(false);
@@ -31,19 +39,19 @@ export const AuthProvider = ({ children }) => {
 
     getSession();
 
-    const { data: listener } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log("Auth event: ", event);
-        if (session?.user) {
-          setUser(session.user);
-        } else {
-          setUser(false);
-        }
+    subscription = supabase.auth.onAuthStateChange((event, session) => {
+      if (process.env.NODE_ENV === "development") {
+        console.log("Auth event:", event);
       }
-    );
+      if (session?.user) {
+        setUser(session.user);
+      } else {
+        setUser(false);
+      }
+    }).data.subscription;
 
     return () => {
-      listener.subscription?.unsubscribe();
+      subscription?.unsubscribe();
     };
   }, []);
 
