@@ -1,12 +1,59 @@
-# React + Vite
+# aether-web
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+🚧 **Project Ditunda Sementara** 🚧
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Repositori ini adalah kode sumber untuk **aether-web**, sebuah aplikasi web untuk layanan top up game dan produk digital lainnya.
 
-## Expanding the ESLint configuration
+> **Catatan:**  
+> Pengembangan project ini sedang _ditunda sementara waktu_.  
+> Semua kode dan konfigurasi terakhir telah didokumentasikan, sehingga dapat dilanjutkan, dikembangkan, atau dikaji ulang di masa mendatang.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---
+
+## 📂 Struktur Project (Singkat)
+
+- `src/` — Kode utama frontend (React/Next.js, komponen, halaman, dsb)
+- `public/` — Aset statis (gambar, favicon, dsb)
+- `README.md` — Dokumentasi singkat project (ini)
+- `.env.example` — Contoh environment variable
+
+---
+
+## 🚀 Cara Menjalankan (jika ingin melanjutkan)
+1. **Install dependency:**
+   ```bash
+   npm install
+   ```
+2. **Jalankan development:**
+   ```bash
+   npm run dev
+   ```
+3. **Konfigurasi environment:**  
+   Lihat/isi `.env.example` sesuai kebutuhan.
+
+---
+
+## 📝 Catatan Lain
+
+- Project ini masih dalam tahap awal/pengembangan.
+- API backend/topup yang digunakan sebaiknya dicek ulang jika ingin melanjutkan, karena layanan pihak ketiga dapat berubah sewaktu-waktu.
+- Jika ingin melanjutkan, cek juga dependensi dan update package yang diperlukan.
+
+---
+
+## 👤 Author
+
+- jouyai
+
+---
+
+## Lisensi
+
+Project ini mengikuti lisensi yang tertera pada repo ini (jika ada).
+
+---
+
+**Status:**  
+⏸️ **DITUNDA SEMENTARA**
